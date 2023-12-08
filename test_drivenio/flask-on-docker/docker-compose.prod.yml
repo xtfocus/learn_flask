@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./services/web
+    command: gunicorn --bind 0.0.0.0:5000 manage:app
+    # Maps port 5000 from the container to port 5001 on the host machine
+    ports:
+      - 5001:5000
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.prod.db
+
+volumes:
+  postgres_data_prod:
+    
+
+#Take note of the default command. We're running Gunicorn rather than the Flask development server. 
+#We also removed the volume from the web service since we don't need it in production.
+#Finally, we're using separate environment variable files to define environment variables for both services that will be passed to the container at runtime.
